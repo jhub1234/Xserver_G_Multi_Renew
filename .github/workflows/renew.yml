@@ -62,33 +62,36 @@ jobs:
           npm install
           npx playwright install --with-deps chrome
           sudo apt-get update
-          sudo apt-get install -y jq fonts-noto-cjk python3
-          bash <(curl -fsSL https://sing-box.app/deb-install.sh)
+          sudo apt-get install -y jq fonts-noto-cjk python3 wget
 
       - name: Start Proxy Tunnel
         env:
           PROXY_URL: ${{ secrets.PROXY_URL }}
         run: |
-          if [ -n "$PROXY_URL" ]; then
-            echo "🔗 检测到代理，正在解析..."
-            # 使用 proxy_handler.py 解析多协议代理
-            python3 proxy_handler.py
-            if [ -f config.json ]; then
-              echo "✅ 代理配置已生成"
-              cat config.json
-              sing-box run -c config.json &
-              for i in {1..30}; do
-                if nc -z 127.0.0.1 8080; then
-                  echo "✅ Proxy tunnel is up!"
-                  break
-                fi
-                echo "Waiting for proxy port 8080... ($i/30)"
-                sleep 1
-              done
-            else
-              echo "❌ 代理配置生成失败"
-              exit 1
-            fi
+          if [ -z "$PROXY_URL" ]; then exit 0; fi
+          
+          # 下载特定版本的 sing-box (与 ICMP9 项目一致)
+          SINGBOX_VER="1.11.0"
+          echo "📦 下载 sing-box v${SINGBOX_VER}..."
+          wget -q "https://github.com/SagerNet/sing-box/releases/download/v${SINGBOX_VER}/sing-box-${SINGBOX_VER}-linux-amd64.tar.gz"
+          tar -xzf "sing-box-${SINGBOX_VER}-linux-amd64.tar.gz"
+          mv "sing-box-${SINGBOX_VER}-linux-amd64/sing-box" ./sing-box
+          chmod +x ./sing-box
+          
+          # 生成配置
+          echo "🔗 解析代理协议..."
+          python3 proxy_handler.py
+          
+          if [ -f config.json ]; then
+            echo "✅ 代理配置已生成:"
+            cat config.json
+            # 使用 nohup 启动 (与 ICMP9 项目一致)
+            nohup ./sing-box run -c config.json > singbox.log 2>&1 &
+            sleep 5
+            echo "✅ Proxy tunnel started"
+          else
+            echo "❌ 代理配置生成失败"
+            exit 1
           fi
 
       - name: Run Extension Script
