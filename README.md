@@ -1,6 +1,6 @@
-# XServer 游戏服务器自动续签（随机时间乱序签到版）
+# XServer 游戏服务器自动续签
 
-自动延长 XServer Game VPS 实例期限，支持多账号、代理`PROXY_URL`和 Telegram 通知。
+自动延长 XServer Game VPS 实例期限，支持多账号、代理和 Telegram 通知。
 
 ---
 
@@ -56,20 +56,13 @@ PWD_3 = password3
 
 #### 代理格式示例
 
+支持 Base64 编码和明文两种格式：
+
 ```
-# TUIC
-tuic://uuid:password@server:port?sni=domain.com&congestion_control=bbr
-
-# VLESS
-vless://uuid@server:port?security=tls&sni=domain.com&type=ws&path=%2Fws
-
-# VMess
-vmess://base64EncodedConfig
-
-# Hysteria2
+tuic://uuid:password@server:port?sni=domain.com
+vless://uuid@server:port?security=tls&sni=domain.com
+vmess://eyJhZGQiOiIxMjcuMC4wLjEiLCJpZCI6InV1aWQifQ==
 hy2://password@server:port?sni=domain.com
-
-# SOCKS5
 socks5://user:pass@server:port
 ```
 
