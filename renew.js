@@ -125,7 +125,7 @@ async function sendTG(statusIcon, statusText, extra = '', imagePath = null) {
 
     // Navigate to login
     console.log(`🌐 打开登录页面: ${LOGIN_URL}`);
-    await page.goto(LOGIN_URL, { waitUntil: 'networkidle', timeout: 30000 });
+    await page.goto(LOGIN_URL, { waitUntil: 'load', timeout: 30000 });
     await page.screenshot({ path: '1_navigation.png' });
 
     // Login
@@ -137,7 +137,7 @@ async function sendTG(statusIcon, statusText, extra = '', imagePath = null) {
     // Submit login
     console.log('🖱️ 提交登录...');
     await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle', timeout: 30000 }),
+      page.waitForNavigation({ waitUntil: 'load', timeout: 30000 }),
       page.locator('input[name="action_user_login"]').click()
     ]);
     
@@ -146,29 +146,29 @@ async function sendTG(statusIcon, statusText, extra = '', imagePath = null) {
     // Click game management
     console.log('🚀 点击游戏管理...');
     await page.locator('a:has-text("ゲーム管理"), a[href*="xmgame"]').first().click();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     await page.screenshot({ path: '3_game_manage.png' });
 
     // Click upgrade/extend
     console.log('🚀 点击延期...');
     await page.locator('a:has-text("アップグレード・期限延長"), a[href*="renew"]').first().click();
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('load');
     await page.screenshot({ path: '4_renew_page.png' });
 
     // Try to click extend button
     try {
       await page.locator('a:has-text("期限を延長する")').waitFor({ state: 'visible', timeout: 5000 });
       await page.locator('a:has-text("期限を延長する")').click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       
       // Confirm
       await page.locator('button:has-text("確認画面に進む")').click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       
       // Final extend
       console.log('🖱️ 执行延期...');
       await page.locator('button:has-text("期限を延長する")').click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('load');
       
       console.log('✅ 延期成功！');
       
